@@ -11,68 +11,52 @@ import com.clickforce.ad.Listener.AdInterstitialListener;
 import com.google.android.gms.ads.mediation.customevent.CustomEventInterstitial;
 import com.google.android.gms.ads.mediation.customevent.CustomEventInterstitialListener;
 
-/**
- * Created by YaoChang on 2017/7/20.
- */
 
 
 public class AdMobIntCustomAD implements CustomEventInterstitial {
     private AdInterstitialView fullad ;
     private static Activity mActivity ;
-
+    private CustomEventInterstitialListener listenertoCF;
 
     public static void getActivity(Activity activity){
         mActivity = activity;
     }
 
     @Override
-    public void requestInterstitialAd(Context context,
+    public void requestInterstitialAd(final Context context,
                                       CustomEventInterstitialListener listener,
                                       String serverParameter,
                                       com.google.android.gms.ads.mediation.MediationAdRequest mediationAdRequest,
                                       Bundle customEventExtras) {
-        /*
-         * In this method, you should:
-         *
-         * 1. Create your interstitial ad.
-         * 2. Set your ad network's listener.
-         * 3. Make an ad request.
-         *
-         * When setting your ad network's listener, don't forget to send the following callbacks:
-         *
-         * listener.onAdLoaded(this);
-         * listener.onAdFailedToLoad(this, AdRequest.ERROR_CODE_*);
-         * listener.onAdOpened(this);
-         * listener.onAdLeftApplication(this);
-         * listener.onAdClosed(this);
-         */
 
 //      Log.d("Parameter", serverParameter);
 
         fullad = new AdInterstitialView(context);
         fullad.getFullScreenAd(Integer.parseInt(serverParameter));
         fullad.init(mActivity);
-//        listener.onAdLoaded();
+
+        listenertoCF = listener;
+        listener.onAdLoaded();
         fullad.setOnAdInterstitialListener(new AdInterstitialListener() {
             @Override
             public void onCloseFullAd() {
-
+                listenertoCF.onAdClosed();
             }
 
             @Override
             public void onFailToFullAd() {
-
+                listenertoCF.onAdFailedToLoad(2);
             }
 
             @Override
             public void onSuccessToFullAd() {
-
                 fullad.show();
+                showInterstitial();
             }
 
             @Override
             public void onClickToFullAd() {
-
+                listenertoCF.onAdClicked();
             }
         });
 
@@ -82,6 +66,7 @@ public class AdMobIntCustomAD implements CustomEventInterstitial {
     public void showInterstitial() {
         // Show your interstitial ad.
 //        mSampleInterstitial.show();
+            listenertoCF.onAdLoaded();
     }
 
     @Override
